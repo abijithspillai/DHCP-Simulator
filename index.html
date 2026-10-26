@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DHCP – Automatic IP Assignment</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<!-- Reusable inline SVG device icons -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-server" viewBox="0 0 48 48"><rect x="6" y="6" width="36" height="12" rx="3"/><rect x="6" y="20" width="36" height="12" rx="3"/><rect x="6" y="34" width="36" height="8" rx="3"/><circle cx="12" cy="12" r="1.6" class="dot"/><circle cx="12" cy="26" r="1.6" class="dot"/><path d="M20 12h16M20 26h16"/></symbol>
+  <symbol id="i-switch" viewBox="0 0 48 48"><rect x="4" y="15" width="40" height="18" rx="3"/><path d="M11 29v-5M18 29v-5M25 29v-5M32 29v-5M39 29v-5"/><circle cx="11" cy="20" r="1.4" class="dot"/><circle cx="18" cy="20" r="1.4" class="dot"/></symbol>
+  <symbol id="i-pc" viewBox="0 0 48 48"><rect x="7" y="7" width="34" height="24" rx="3"/><path d="M18 41h12M24 31v10"/></symbol>
+</svg>
+
+<header class="site-header">
+  <h1>DHCP – Automatic IP Assignment</h1>
+  <p>A browser-based simulation of how a DHCP server automatically leases IP addresses to client computers using the DORA process. No real packets are sent.</p>
+</header>
+
+<main class="layout">
+  <section class="card" id="topology-card" aria-labelledby="t-h">
+    <h2 id="t-h">Network topology</h2>
+    <div class="topo" id="topo">
+      <div class="device" id="dev-server">
+        <svg class="icon"><use href="#i-server"/></svg>
+        <strong>DHCP Server</strong>
+        <span class="sub" id="topo-server-ip">192.168.1.2</span>
+        <span class="badge on" id="topo-server-state">ON</span>
+      </div>
+      <div class="vline"></div>
+      <div class="device" id="dev-switch">
+        <svg class="icon"><use href="#i-switch"/></svg>
+        <strong>Network Switch</strong>
+      </div>
+      <div class="vline"></div>
+      <div class="clients" id="clients">
+        <div class="cell"><div class="device" data-pc="0"><svg class="icon"><use href="#i-pc"/></svg><strong>PC0</strong><span class="sub" data-topo-ip="0">Waiting…</span></div></div>
+        <div class="cell"><div class="device" data-pc="1"><svg class="icon"><use href="#i-pc"/></svg><strong>PC1</strong><span class="sub" data-topo-ip="1">Waiting…</span></div></div>
+        <div class="cell"><div class="device" data-pc="2"><svg class="icon"><use href="#i-pc"/></svg><strong>PC2</strong><span class="sub" data-topo-ip="2">Waiting…</span></div></div>
+      </div>
+    </div>
+    <p class="banner" id="banner" role="status">Idle. Apply a configuration and start the DORA process.</p>
+  </section>
+
+  <section class="card" aria-labelledby="c-h">
+    <h2 id="c-h">DHCP server configuration</h2>
+    <form id="cfg-form" novalidate>
+      <div class="fields">
+        <label>Pool name<input id="poolName" value="LAN_POOL" autocomplete="off"></label>
+        <label>DHCP server IP<input id="serverIp" value="192.168.1.2" autocomplete="off"></label>
+        <label>Subnet mask<input id="mask" value="255.255.255.0" autocomplete="off"></label>
+        <label>Starting client IP<input id="startIp" value="192.168.1.10" autocomplete="off"></label>
+        <label>Default gateway<input id="gateway" value="192.168.1.1" autocomplete="off"></label>
+        <label>DNS server<input id="dns" value="8.8.8.8" autocomplete="off"></label>
+        <label>Lease duration (hours)<input id="lease" type="number" min="1" max="720" value="24"></label>
+      </div>
+      <p class="error" id="cfg-error" role="alert"></p>
+      <div class="btn-row">
+        <button type="button" id="btn-apply">Apply Configuration</button>
+        <button type="button" id="btn-run" class="primary">Run DHCP (DORA)</button>
+        <button type="button" id="btn-next">Next Step</button>
+        <button type="button" id="btn-reset">Reset Simulation</button>
+        <button type="button" id="btn-power">Turn Server OFF</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="card" aria-labelledby="d-h">
+    <h2 id="d-h">DORA protocol walkthrough</h2>
+    <ol class="dora" id="dora">
+      <li data-stage="1"><b>Discover</b><span>DHCPDISCOVER</span></li>
+      <li data-stage="2"><b>Offer</b><span>DHCPOFFER</span></li>
+      <li data-stage="3"><b>Request</b><span>DHCPREQUEST</span></li>
+      <li data-stage="4"><b>Acknowledge</b><span>DHCPACK</span></li>
+    </ol>
+    <p class="explain" id="explain">No exchange in progress. Press “Run DHCP (DORA)” for the automatic demo or “Next Step” to go one stage at a time.</p>
+  </section>
+
+  <section class="card" aria-labelledby="a-h">
+    <h2 id="a-h">Client IP address table</h2>
+    <table class="ip-table">
+      <thead><tr><th>Client</th><th>IPv4 address</th><th>Subnet mask</th><th>Gateway</th><th>DNS</th><th>Lease</th><th>Status</th></tr></thead>
+      <tbody id="ip-body"></tbody>
+    </table>
+  </section>
+
+  <section class="card" aria-labelledby="p-h">
+    <h2 id="p-h">Connectivity test (simulated ping)</h2>
+    <div class="ping-row">
+      <label>Source<select id="ping-src"></select></label>
+      <label>Destination<select id="ping-dst"></select></label>
+      <button type="button" id="btn-ping" class="primary">Test Ping</button>
+    </div>
+    <pre class="ping-out" id="ping-out">No test run yet. This is a simulation; no ICMP packets are sent.</pre>
+  </section>
+
+  <section class="card" aria-labelledby="l-h">
+    <div class="card-head"><h2 id="l-h">Event log</h2><button type="button" id="btn-clear">Clear Log</button></div>
+    <div class="log" id="log" role="log" aria-live="polite"></div>
+  </section>
+
+  <section class="card" aria-labelledby="i-h">
+    <h2 id="i-h">About DHCP</h2>
+    <p><b>DHCP (Dynamic Host Configuration Protocol)</b> automatically gives devices an IP address and related settings (mask, gateway, DNS) when they join a network. This avoids manual configuration and prevents duplicate addresses.</p>
+    <p><b>DORA:</b> Discover (client broadcasts), Offer (server proposes an address), Request (client asks for it), Acknowledge (server confirms the lease).</p>
+    <p><b>Ports:</b> DHCP servers listen on UDP port 67; DHCP clients use UDP port 68.</p>
+    <p><b>Lease:</b> an address is loaned for a set time. The client must renew it before it expires or give it up.</p>
+    <p class="note">This page is a JavaScript model of DHCP. It never changes your computer's real network settings.</p>
+  </section>
+</main>
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+/* DHCP simulator styles. Light theme, navy headings, blue accents. */
+:root{--bg:#f3f6fb;--card:#fff;--navy:#12294d;--blue:#1f6feb;--blue-soft:#e7f0ff;--line:#9db3d3;--border:#d8e1ef;--text:#27364d;--muted:#667a99;--ok:#1a7f45;--err:#c0262d;--warn:#9a6700;--shadow:0 1px 3px rgba(18,41,77,.08)}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:"Segoe UI",system-ui,-apple-system,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;overflow-x:hidden}
+.site-header{background:var(--navy);color:#fff;padding:28px 20px;text-align:center}
+.site-header h1{margin:0 0 6px;font-size:clamp(1.5rem,4vw,2.2rem)}
+.site-header p{margin:0 auto;max-width:720px;color:#c9d7ee}
+.layout{max-width:1100px;margin:0 auto;padding:20px 16px 40px;display:grid;gap:18px;grid-template-columns:minmax(0,1fr)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);padding:18px 20px;min-width:0}
+h2{margin:0 0 14px;color:var(--navy);font-size:1.15rem}
+.card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.card-head h2{margin:0}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+
+/* ---------- Topology: grid columns + pseudo-element lines ---------- */
+.topo{display:flex;flex-direction:column;align-items:center;padding:6px 0}
+.device{position:relative;z-index:2;background:#fff;border:2px solid var(--border);border-radius:10px;padding:10px 14px;min-width:130px;max-width:100%;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;transition:border-color .2s,box-shadow .2s}
+.device strong{color:var(--navy);font-size:.95rem}
+.sub{font-size:.8rem;color:var(--muted);font-family:Consolas,monospace;overflow-wrap:anywhere}
+.icon{width:42px;height:42px;fill:var(--blue-soft);stroke:var(--blue);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.icon .dot{fill:var(--blue);stroke:none}
+.badge{font-size:.72rem;font-weight:700;padding:1px 10px;border-radius:99px}
+.badge.on{background:#dcf5e6;color:var(--ok)}.badge.off{background:#fde4e5;color:var(--err)}
+.vline{width:2px;height:28px;background:var(--line);position:relative;z-index:1}
+.clients{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;max-width:640px}
+.cell{position:relative;display:flex;justify-content:center;padding-top:28px}
+.cell .device{min-width:0;width:calc(100% - 16px);max-width:150px}
+/* horizontal bus segment + vertical drop for each client */
+.cell::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:var(--line);z-index:1}
+.cell:first-child::before{left:50%}.cell:last-child::before{right:50%}
+.cell::after{content:"";position:absolute;top:0;left:50%;width:2px;height:28px;margin-left:-1px;background:var(--line);z-index:1}
+/* visual states during the DORA exchange */
+.topo.live .vline,.topo.live .cell::before,.topo.live .cell::after{background:var(--blue)}
+.topo.live .device{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-soft)}
+.topo.down #dev-server{border-color:var(--err);box-shadow:none;opacity:.75}
+.topo .device.has-ip{border-color:#8ad0a8}
+.banner{margin:14px 0 0;padding:8px 12px;background:var(--blue-soft);border-radius:8px;color:var(--navy);font-size:.92rem;text-align:center}
+.banner.err{background:#fde4e5;color:var(--err)}.banner.ok{background:#dcf5e6;color:var(--ok)}
+
+/* ---------- Forms & buttons ---------- */
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+label{display:flex;flex-direction:column;gap:4px;font-size:.85rem;font-weight:600;color:var(--navy)}
+input,select{font:inherit;font-weight:400;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--text);width:100%}
+input.bad{border-color:var(--err)}
+.error{min-height:1.2em;margin:10px 0 0;color:var(--err);font-size:.88rem;white-space:pre-line}
+.btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+button{font:inherit;font-size:.9rem;padding:8px 14px;border-radius:6px;border:1px solid var(--blue);background:#fff;color:var(--blue);cursor:pointer}
+button:hover:not(:disabled){background:var(--blue-soft)}
+button.primary{background:var(--blue);color:#fff}button.primary:hover:not(:disabled){background:#1858bd}
+button:disabled{opacity:.45;cursor:not-allowed}
+
+/* ---------- DORA ---------- */
+.dora{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.dora li{border:1px solid var(--border);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:2px;background:#fafcff}
+.dora b{color:var(--navy)}.dora span{font-family:Consolas,monospace;font-size:.78rem;color:var(--muted);overflow-wrap:anywhere}
+.dora li.current{border-color:var(--blue);background:var(--blue-soft)}
+.dora li.done{border-color:#8ad0a8;background:#effaf3}
+.dora li.failed{border-color:var(--err);background:#fdeeee}
+.explain{margin:12px 0 0;padding:10px 12px;border-left:4px solid var(--blue);background:#f6f9ff}
+
+/* ---------- Table ---------- */
+.ip-table{width:100%;border-collapse:collapse;font-size:.9rem}
+.ip-table th,.ip-table td{padding:8px 10px;border-bottom:1px solid var(--border);text-align:left}
+.ip-table th{color:var(--navy);background:#f6f9ff}
+.ip-table td.mono{font-family:Consolas,monospace}
+.status{font-weight:600}.status.wait{color:var(--warn)}.status.ok{color:var(--ok)}
+.ping-row{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end}
+.ping-out{margin:12px 0 0;padding:12px;background:#f6f9ff;border:1px solid var(--border);border-radius:8px;white-space:pre-wrap;font-family:Consolas,monospace;font-size:.85rem;overflow-wrap:anywhere}
+
+/* ---------- Log ---------- */
+.log{background:#0f1b30;color:#d6e2f5;border-radius:8px;padding:10px 12px;height:240px;overflow:auto;font-family:Consolas,monospace;font-size:.82rem}
+.log div{padding:1px 0;overflow-wrap:anywhere}
+.log .t{color:#7f93b4}.log .success{color:#6fdc9b}.log .info{color:#8cbcff}.log .error{color:#ff8b92}
+.note{color:var(--muted);font-size:.88rem}
+.card p{margin:0 0 8px}
+
+@media (max-width:720px){
+  .dora{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ping-row{grid-template-columns:1fr}
+  .ip-table thead{display:none}
+  .ip-table,.ip-table tbody,.ip-table tr,.ip-table td{display:block;width:100%}
+  .ip-table tr{border:1px solid var(--border);border-radius:8px;margin-bottom:10px;padding:4px 0}
+  .ip-table td{border:0;display:flex;justify-content:space-between;gap:10px;padding:4px 12px}
+  .ip-table td::before{content:attr(data-label);color:var(--muted);font-weight:600}
+}
+/* Narrow phones: stack clients vertically; a single trunk line runs through them */
+@media (max-width:480px){
+  .card{padding:14px}
+  .clients{grid-template-columns:1fr;max-width:220px}
+  .cell{padding-top:18px}
+  .cell .device{width:100%;max-width:none}
+  .cell::before{left:50%;right:auto;width:2px;margin-left:-1px;height:100%;top:0}
+  .cell:first-child::before{left:50%}
+  .cell:last-child::before{right:auto;height:50%}
+  .cell::after{display:none}
+  .btn-row button{flex:1 1 45%}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
